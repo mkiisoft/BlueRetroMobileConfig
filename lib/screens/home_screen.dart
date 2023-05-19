@@ -1,16 +1,23 @@
 import 'dart:async';
 
+import 'package:blue_retro/gen/assets.gen.dart';
+import 'package:blue_retro/l10n/app_localizations.dart';
 import 'package:blue_retro/model/device.dart';
+import 'package:blue_retro/notifiers/app_notifier.dart';
 import 'package:blue_retro/screens/details_screen.dart';
 import 'package:blue_retro/screens/register_screen.dart';
+import 'package:blue_retro/screens/settings_screen.dart';
 import 'package:blue_retro/utils/shared_utils.dart';
 import 'package:blue_retro/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  final BuildContext context;
+
+  const HomeScreen(this.context, {Key? key}) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -31,19 +38,30 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final _searching = ValueNotifier(0);
 
+  @override
+  void initState() {
+    super.initState();
+    _loadLocale();
+  }
+
+  void _loadLocale() {
+    _sharedUtils.getOption().then((option) {
+      providerContainer.read(appNotifier.notifier).setOption(option);
+    });
+  }
+
   void _searchDevices() async {
-    print('IS_HERE');
+    final bleStream = _ble
+        .scanForDevices(
+          scanMode: ScanMode.lowLatency,
+          withServices: Utils.deviceId,
+        )
+        .timeout(const Duration(seconds: 5));
+
     _status = _ble.statusStream.listen((event) {
-      print('EVENT: $event');
       if (event == BleStatus.ready) {
-        _discover = _ble
-            .scanForDevices(
-              scanMode: ScanMode.lowLatency,
-              withServices: Utils.deviceId,
-            )
-            .timeout(const Duration(seconds: 5))
-            .listen((device) async {
-          print('DEVICES: $device');
+        _status!.cancel();
+        _discover = bleStream.listen((device) async {
           if (!_ids.contains(device.name)) {
             _wait?.cancel();
             _ids.add(device.name);
@@ -54,31 +72,30 @@ class _HomeScreenState extends State<HomeScreen> {
               final getDefault = Device.getDefault(device.id, device.name);
               _devices.add((getDefault, device));
             }
-            _wait = Timer(const Duration(seconds: 2), () {
+            _wait = Timer(const Duration(seconds: 2), () async {
+              await _status!.cancel();
+              await _discover!.cancel();
               _wait?.cancel();
-              _discover!.cancel();
-              _status!.cancel();
               _searching.value = 0;
               _loading.value = false;
             });
             setState(() {});
           } else {
-            _wait = Timer(const Duration(seconds: 10), () {
+            _wait = Timer(const Duration(seconds: 10), () async {
+              await _status!.cancel();
+              await _discover!.cancel();
               _wait?.cancel();
-              _status!.cancel();
-              _discover!.cancel();
               _searching.value = 0;
               _loading.value = false;
             });
           }
         }, onError: (error) {
-          print('ERROR: $error');
           _status!.cancel();
           _discover!.cancel();
           _searching.value = 0;
           _loading.value = false;
         }, onDone: () {
-          print('DONE!');
+          /* no-op */
         });
       }
     });
@@ -91,6 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _searching.value = 1;
     const permission = Permission.location;
     final granted = await permission.isGranted;
+    _searchDevices();
     if (granted) {
       _searchDevices();
     } else {
@@ -99,7 +117,6 @@ class _HomeScreenState extends State<HomeScreen> {
         _searchDevices();
       }
     }
-
   }
 
   void _connect(DiscoveredDevice device, bool registered) async {
@@ -111,106 +128,121 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _goToSettings() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => SettingsScreen(context)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('BlueRetro Config'),
-        actions: [
-          _connection != null
-              ? IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () async => await _connection!.cancel(),
-                )
-              : const SizedBox(),
-        ],
-      ),
-      body: ValueListenableBuilder<bool>(
-          valueListenable: _loading,
-          builder: (context, loading, child) {
-            return Stack(
-              children: [
-                _devices.isNotEmpty
-                    ? ListView(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        children: _devices.map((device) {
-                          return InkResponse(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              child: Card(
-                                elevation: 10,
-                                color: Colors.grey[900],
+    return Consumer(
+      builder: (context, ref, child) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(AppLocalizations.of(context)!.toolbarTitle),
+            actions: [
+              _connection != null
+                  ? IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () async => await _connection!.cancel(),
+                    )
+                  : const SizedBox(),
+              IconButton(
+                onPressed: _goToSettings,
+                icon: const Icon(Icons.settings),
+              ),
+            ],
+          ),
+          body: ValueListenableBuilder<bool>(
+              valueListenable: _loading,
+              builder: (context, loading, child) {
+                return Stack(
+                  children: [
+                    _devices.isNotEmpty
+                        ? ListView(
+                            padding: const EdgeInsets.all(20),
+                            children: _devices.map((device) {
+                              return InkResponse(
                                 child: Padding(
-                                  padding: const EdgeInsets.all(20),
-                                  child: Text(
-                                    device.$1.nickname.isNotEmpty
-                                        ? device.$1.nickname
-                                        : device.$1.name,
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 10),
+                                  child: Card(
+                                    elevation: 10,
+                                    color: Colors.grey[900],
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(20),
+                                      child: Text(
+                                        device.$1.nickname.isNotEmpty
+                                            ? device.$1.nickname
+                                            : device.$1.name,
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ),
-                            onTap: () {
-                              _connect(
-                                device.$2,
-                                device.$1.nickname.isNotEmpty,
+                                onTap: () {
+                                  _connect(
+                                    device.$2,
+                                    device.$1.nickname.isNotEmpty,
+                                  );
+                                },
                               );
-                            },
-                          );
-                        }).toList(),
-                      )
-                    : Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Image.asset(
-                              'assets/retro_logo.png',
-                              width: 200,
-                              color: const Color(0xFF101010),
+                            }).toList(),
+                          )
+                        : Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Assets.retroLogo.image(
+                                  width: 200,
+                                  color: const Color(0xFF101010),
+                                ),
+                                const SizedBox(height: kToolbarHeight),
+                              ],
                             ),
-                            const SizedBox(height: kToolbarHeight),
-                          ],
+                          ),
+                    if (loading)
+                      IgnorePointer(
+                        ignoring: false,
+                        child: Container(
+                          color: const Color(0x90000000),
+                          child: const Center(
+                            child: CircularProgressIndicator(),
+                          ),
                         ),
-                      ),
-                if (loading)
-                  IgnorePointer(
-                    ignoring: false,
-                    child: Container(
-                      color: const Color(0x90000000),
-                      child: const Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    ),
-                  )
-              ],
-            );
-          }),
-      floatingActionButton: ValueListenableBuilder<int>(
-        valueListenable: _searching,
-        builder: (_, searching, child) {
-          Widget? widget;
-          switch (searching) {
-            case 0:
-              widget = child;
-              break;
-            case 1:
-            default:
-              widget = const SizedBox();
-              break;
-          }
-          return widget!;
-        },
-        child: FloatingActionButton.extended(
-          onPressed: _permission,
-          label: const Text(
-            'Search for Devices',
-            style: TextStyle(
-              fontSize: 14,
+                      )
+                  ],
+                );
+              }),
+          floatingActionButton: ValueListenableBuilder<int>(
+            valueListenable: _searching,
+            builder: (_, searching, child) {
+              Widget? widget;
+              switch (searching) {
+                case 0:
+                  widget = child;
+                  break;
+                case 1:
+                default:
+                  widget = const SizedBox();
+                  break;
+              }
+              return widget!;
+            },
+            child: FloatingActionButton.extended(
+              onPressed: _permission,
+              label: Text(
+                AppLocalizations.of(context)!.buttonSearchDevices,
+                style: const TextStyle(
+                  fontSize: 14,
+                ),
+              ),
             ),
           ),
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerFloat,
+        );
+      },
     );
   }
 }

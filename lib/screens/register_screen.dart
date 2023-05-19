@@ -1,3 +1,4 @@
+import 'package:blue_retro/l10n/app_localizations.dart';
 import 'package:blue_retro/model/console.dart';
 import 'package:blue_retro/model/device.dart';
 import 'package:blue_retro/screens/details_screen.dart';
@@ -36,11 +37,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _device.value = Device.getDefault(widget.device.id, widget.device.name);
     }
     final console = Console.values.firstWhere(
-      (item) => _device.value?.name.contains(item.name) ?? false,
+      (item) => _device.value!.name.toLowerCase().contains(item.name.toLowerCase()),
       orElse: () => Console.NONE,
     );
     _device.value!.consoleId = console.id;
-    _device.value!.color = console.colors.first.$2.value;
+    final (_, color) = console.colors.first;
+    _device.value!.color = color.value;
     setState(() {});
     _controllerListener();
   }
@@ -119,8 +121,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                               height: kToolbarHeight,
                                             ),
                                             Image.asset(
-                                              'assets/dongles/n64_0.png',
-                                              width: 100,
+                                              _device.value!.asset,
+                                              width: 200,
+                                              height: 200,
                                               color: Color(device.color)
                                                   .contrast(),
                                             ),
@@ -152,10 +155,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       );
                                     }).toList(),
                                     onChanged: (console) {
-                                      _device.value?.consoleId = console!.id;
-                                      _device.value?.color =
-                                          console!.colors[0].$2.value;
-                                      setState(() {});
+                                      if (console != null) {
+                                        final (_, color) = console.colors.first;
+                                        _device.value?.consoleId = console.id;
+                                        _device.value?.color = color.value;
+                                        _device.value?.asset = console.asset;
+                                        setState(() {});
+                                      }
                                     },
                                     decoration: const InputDecoration(
                                         border: OutlineInputBorder()),
@@ -168,14 +174,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         .colors
                                         .map<DropdownMenuItem<(String, Color)>>(
                                             (item) {
+                                              final (name, _) = item;
                                       return DropdownMenuItem<(String, Color)>(
                                         value: item,
-                                        child: Text('Color: ${item.$1}'),
+                                        child: Text('Color: $name'),
                                       );
                                     }).toList(),
-                                    onChanged: (color) {
-                                      _device.value?.color = color!.$2.value;
-                                      setState(() {});
+                                    onChanged: (item) {
+                                      if (item != null) {
+                                        final (_, color) = item;
+                                        _device.value?.color = color.value;
+                                        setState(() {});
+                                      }
                                     },
                                     decoration: const InputDecoration(
                                         border: OutlineInputBorder()),
@@ -207,7 +217,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
           floatingActionButton: FloatingActionButton.extended(
             onPressed: () => _saveDevice(),
-            label: const Text('Save Device'),
+            label: Text(AppLocalizations.of(context)!.buttonSaveDevice),
           ),
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerFloat,

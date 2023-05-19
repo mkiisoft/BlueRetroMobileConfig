@@ -9,6 +9,7 @@ class Device {
   int consoleId = 0;
   int gamepadId = 0;
   int color = const Color(0xFF2196F3).value;
+  String asset = 'assets/dongles/N64_0.png';
 
   Device._(
     this.deviceId,
@@ -17,6 +18,7 @@ class Device {
     this.consoleId,
     this.gamepadId,
     this.color,
+    this.asset,
   );
 
   void setNickname(String nickname) {
@@ -35,6 +37,10 @@ class Device {
     this.color = color;
   }
 
+  void setAsset(String asset) {
+    this.asset = asset;
+  }
+
   Console getConsole() =>
       Console.values.firstWhere((item) => item.id == consoleId);
 
@@ -46,11 +52,20 @@ class Device {
       json[name]['consoleId'],
       json[name]['gamepadId'],
       json[name]['color'],
+      json[name]['asset'],
     );
   }
 
   factory Device.getDefault(String deviceId, String name) {
-    return Device._(deviceId, name, '', 0, 0, const Color(0xFF2196F3).value);
+    return Device._(
+      deviceId,
+      name,
+      '',
+      0,
+      0,
+      const Color(0xFF2196F3).value,
+      'assets/dongles/N64_0.png',
+    );
   }
 
   Map<String, dynamic> toJson(String name) => {
@@ -61,6 +76,7 @@ class Device {
           'consoleId': consoleId,
           'gamepadId': gamepadId,
           'color': color,
+          'asset': asset,
         }
       };
 }

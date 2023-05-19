@@ -5,6 +5,7 @@ import 'package:blue_retro/utils/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class DetailsScreen extends StatefulWidget {
   final DiscoveredDevice device;
@@ -49,10 +50,12 @@ class _DetailsScreenState extends State<DetailsScreen> {
         print('CONNECTED');
         _title.value = 'Connected';
 
-        await _ble.requestConnectionPriority(
-          deviceId: widget.device.id,
-          priority: ConnectionPriority.highPerformance,
-        );
+        if (Theme.of(context).platform == TargetPlatform.android) {
+          await _ble.requestConnectionPriority(
+            deviceId: widget.device.id,
+            priority: ConnectionPriority.highPerformance,
+          );
+        }
 
         final services = await _ble.discoverServices(widget.device.id);
         final service = services.firstWhere(
@@ -77,14 +80,18 @@ class _DetailsScreenState extends State<DetailsScreen> {
 
         // APP VERSION
         try {
+          _ble.characteristicValueStream.listen((event) {
+            print('EVENTO: $event');
+          });
           final versionDataFuture = _ble.readCharacteristic(
             Utils.genCharacteristic(appVersion, widget.device),
           );
-          final versionData = await retry(
+          final versionData = await retry<List<int>>(
             10,
             () => versionDataFuture,
             eachDelay: const Duration(seconds: 1),
           );
+          print('VERSION: $versionData');
           final filtered = versionData.takeWhile((value) => value > 0).toList();
           final title = utf8.decode(filtered);
           _title.value = title;
@@ -163,3 +170,18 @@ class _DetailsScreenState extends State<DetailsScreen> {
     );
   }
 }
+
+class TestScreen extends ConsumerStatefulWidget {
+  const TestScreen({Key? key}) : super(key: key);
+
+  @override
+  ConsumerState<TestScreen> createState() => _TestScreenState();
+}
+
+class _TestScreenState extends ConsumerState<TestScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
+  }
+}
+

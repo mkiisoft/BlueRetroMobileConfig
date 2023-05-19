@@ -9,10 +9,21 @@ dependencies:
   flutter:
     sdk: flutter
 
+  flutter_localizations:
+    sdk: flutter
+
+  intl: any
+
+  provider: ^6.0.5
+  flutter_riverpod: ^2.3.6
+
   shared_preferences: ^2.1.1
 
+  bluetooth_enable_fork: ^0.1.6
   flutter_reactive_ble: ^5.0.3
   permission_handler: ^10.2.0
+
+  flutter_gen: ^5.3.1
   
   cupertino_icons: ^1.0.5
 
@@ -21,6 +32,9 @@ dev_dependencies:
     sdk: flutter
 
   flutter_lints: ^2.0.1
+
+  build_runner:
+  flutter_gen_runner:
 
 flutter:
 
