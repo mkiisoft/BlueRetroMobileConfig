@@ -11,10 +11,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get toolbarTitle => 'BlueRetro Config';
 
   @override
-  String get buttonSearchDevices => 'Search for Devices';
+  String get buttonSearchDevices => 'SEARCH FOR DEVICES';
 
   @override
-  String get buttonSaveDevice => 'Save Device';
+  String get buttonSaveDevice => 'SAVE DEVICE';
 
   @override
   String get toolbarSettingsTitle => 'Settings';

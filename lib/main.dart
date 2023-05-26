@@ -1,5 +1,6 @@
 import 'package:blue_retro/l10n/app_localizations.dart';
 import 'package:blue_retro/notifiers/app_notifier.dart';
+import 'package:blue_retro/notifiers/main_notifier.dart';
 import 'package:blue_retro/splash.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

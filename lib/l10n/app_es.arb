@@ -1,9 +1,9 @@
 {
     "appName": "BlueRetro",
     "toolbarTitle": "BlueRetro Config",
-    "buttonSearchDevices": "Buscar Dispositivos",
+    "buttonSearchDevices": "BUSCAR DISPOSITIVOS",
     "buttonSaveDevice": "Guardar Dispositivo",
     "toolbarSettingsTitle": "Ajustes",
-    "stringLanguage": "Lenguaje",
+    "stringLanguage": "Idioma",
     "stringDarkMode": "Modo Oscuro"
 }

@@ -4,12 +4,16 @@ import 'package:blue_retro/gen/assets.gen.dart';
 import 'package:blue_retro/l10n/app_localizations.dart';
 import 'package:blue_retro/model/device.dart';
 import 'package:blue_retro/notifiers/app_notifier.dart';
+import 'package:blue_retro/notifiers/main_notifier.dart';
 import 'package:blue_retro/screens/details_screen.dart';
 import 'package:blue_retro/screens/register_screen.dart';
-import 'package:blue_retro/screens/settings_screen.dart';
 import 'package:blue_retro/utils/shared_utils.dart';
 import 'package:blue_retro/utils/utils.dart';
+import 'package:blue_retro/widgets/action_settings.dart';
+import 'package:blue_retro/widgets/action_toolbar.dart';
+import 'package:blue_retro/widgets/widget_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -33,7 +37,6 @@ class _HomeScreenState extends State<HomeScreen> {
   final _ids = <String>[];
   StreamSubscription<BleStatus>? _status;
   StreamSubscription<DiscoveredDevice>? _discover;
-  StreamSubscription<ConnectionStateUpdate>? _connection;
   Timer? _wait;
 
   final _searching = ValueNotifier(0);
@@ -128,32 +131,12 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _goToSettings() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (context) => SettingsScreen(context)),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer(
       builder: (context, ref, child) {
         return Scaffold(
-          appBar: AppBar(
-            title: Text(AppLocalizations.of(context)!.toolbarTitle),
-            actions: [
-              _connection != null
-                  ? IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () async => await _connection!.cancel(),
-                    )
-                  : const SizedBox(),
-              IconButton(
-                onPressed: _goToSettings,
-                icon: const Icon(Icons.settings),
-              ),
-            ],
-          ),
+          appBar: const ActionToolbar(ActionSettings()),
           body: ValueListenableBuilder<bool>(
               valueListenable: _loading,
               builder: (context, loading, child) {
@@ -186,16 +169,25 @@ class _HomeScreenState extends State<HomeScreen> {
                                     device.$1.nickname.isNotEmpty,
                                   );
                                 },
-                              );
+                              )
+                                  .animate()
+                                  .fadeIn(
+                                    duration: const Duration(milliseconds: 500),
+                                    curve: Curves.decelerate,
+                                  )
+                                  .slideY(
+                                    duration: const Duration(milliseconds: 500),
+                                    curve: Curves.decelerate,
+                                  );
                             }).toList(),
                           )
                         : Center(
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Assets.retroLogo.image(
-                                  width: 200,
-                                  color: const Color(0xFF101010),
+                                Assets.brLogoNamed.image(
+                                  width: 300,
+                                  color: const Color(0xFF303030),
                                 ),
                                 const SizedBox(height: kToolbarHeight),
                               ],
@@ -207,7 +199,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Container(
                           color: const Color(0x90000000),
                           child: const Center(
-                            child: CircularProgressIndicator(),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                VSpace(200),
+                                CircularProgressIndicator(),
+                              ],
+                            ),
                           ),
                         ),
                       )
@@ -234,7 +232,9 @@ class _HomeScreenState extends State<HomeScreen> {
               label: Text(
                 AppLocalizations.of(context)!.buttonSearchDevices,
                 style: const TextStyle(
-                  fontSize: 14,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
               ),
             ),

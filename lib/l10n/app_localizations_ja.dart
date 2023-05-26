@@ -14,7 +14,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get buttonSearchDevices => 'デバイスの検索';
 
   @override
-  String get buttonSaveDevice => '保存';
+  String get buttonSaveDevice => 'デバイスを保存';
 
   @override
   String get toolbarSettingsTitle => '設定';

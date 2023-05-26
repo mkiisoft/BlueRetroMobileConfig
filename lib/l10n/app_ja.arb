@@ -2,7 +2,7 @@
     "appName": "BlueRetro",
     "toolbarTitle": "BlueRetro Config",
     "buttonSearchDevices": "デバイスの検索",
-    "buttonSaveDevice": "保存",
+    "buttonSaveDevice": "デバイスを保存",
     "toolbarSettingsTitle": "設定",
     "stringLanguage": "言語",
     "stringDarkMode": "ダークモード"

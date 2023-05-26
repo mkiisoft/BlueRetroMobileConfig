@@ -1,8 +1,9 @@
-import 'package:blue_retro/utils/app_locale.dart';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 class Option {
-  Locale language = AppLocale.english.locale;
+  Locale language = Locale(PlatformDispatcher.instance.locale.languageCode);
   bool darkMode = WidgetsBinding.instance.platformDispatcher
       .platformBrightness == Brightness.dark;
 
@@ -13,7 +14,7 @@ class Option {
 
   factory Option.getDefault() {
     return Option._(
-      language: AppLocale.english.locale,
+      language: Locale(PlatformDispatcher.instance.locale.languageCode),
       darkMode: WidgetsBinding.instance.platformDispatcher
           .platformBrightness == Brightness.dark,
     );

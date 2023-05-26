@@ -106,6 +106,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       : device.name,
                                   style: TextStyle(
                                     color: Color(device.color).contrast(),
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                                 flexibleSpace: ValueListenableBuilder<double>(
@@ -217,7 +218,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
           floatingActionButton: FloatingActionButton.extended(
             onPressed: () => _saveDevice(),
-            label: Text(AppLocalizations.of(context)!.buttonSaveDevice),
+            label: Text(
+              AppLocalizations.of(context)!.buttonSaveDevice,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerFloat,

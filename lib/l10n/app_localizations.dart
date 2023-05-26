@@ -110,13 +110,13 @@ abstract class AppLocalizations {
   /// Floating Action Button Search for Devices
   ///
   /// In en, this message translates to:
-  /// **'Search for Devices'**
+  /// **'SEARCH FOR DEVICES'**
   String get buttonSearchDevices;
 
   /// Floating Action Button Save Device
   ///
   /// In en, this message translates to:
-  /// **'Save Device'**
+  /// **'SAVE DEVICE'**
   String get buttonSaveDevice;
 
   /// Title for Settings Screen AppBar Widget

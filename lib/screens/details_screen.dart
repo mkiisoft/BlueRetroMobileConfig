@@ -133,6 +133,24 @@ class _DetailsScreenState extends State<DetailsScreen> {
     _title.value = '${_title.value} - Deep Sleep';
   }
 
+  void _reset(QualifiedCharacteristic characteristic) async {
+    _loading.value = true;
+    final cmd = Uint8List(1);
+    cmd[0] = Utils.cfg_cmd_sys_reset;
+
+    await _ble.writeCharacteristicWithResponse(characteristic, value: cmd);
+    _loading.value = false;
+  }
+
+  void _factoryReset(QualifiedCharacteristic characteristic) async {
+    _loading.value = true;
+    final cmd = Uint8List(1);
+    cmd[0] = Utils.cfg_cmd_sys_factory;
+
+    await _ble.writeCharacteristicWithResponse(characteristic, value: cmd);
+    _loading.value = false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(

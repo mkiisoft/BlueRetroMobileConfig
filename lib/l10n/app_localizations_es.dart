@@ -11,7 +11,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get toolbarTitle => 'BlueRetro Config';
 
   @override
-  String get buttonSearchDevices => 'Buscar Dispositivos';
+  String get buttonSearchDevices => 'BUSCAR DISPOSITIVOS';
 
   @override
   String get buttonSaveDevice => 'Guardar Dispositivo';
@@ -20,7 +20,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get toolbarSettingsTitle => 'Ajustes';
 
   @override
-  String get stringLanguage => 'Lenguaje';
+  String get stringLanguage => 'Idioma';
 
   @override
   String get stringDarkMode => 'Modo Oscuro';

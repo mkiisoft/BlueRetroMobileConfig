@@ -7,11 +7,11 @@
     "@toolbarTitle": {
         "description": "Title for AppBar Widget"
     },
-    "buttonSearchDevices": "Search for Devices",
+    "buttonSearchDevices": "SEARCH FOR DEVICES",
     "@buttonSearchDevices": {
         "description": "Floating Action Button Search for Devices"
     },
-    "buttonSaveDevice": "Save Device",
+    "buttonSaveDevice": "SAVE DEVICE",
     "@buttonSaveDevice": {
         "description": "Floating Action Button Save Device"
     },

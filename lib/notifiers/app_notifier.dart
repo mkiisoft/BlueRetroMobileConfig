@@ -26,4 +26,3 @@ class AppNotifier extends ChangeNotifier {
 }
 
 final appNotifier = ChangeNotifierProvider((ref) => AppNotifier());
-final providerContainer = ProviderContainer();

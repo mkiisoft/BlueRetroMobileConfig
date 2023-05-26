@@ -19,8 +19,11 @@ class $AssetsDonglesGen {
 class Assets {
   Assets._();
 
+  static const AssetGenImage brIcon = AssetGenImage('assets/br_icon.png');
+  static const AssetGenImage brLogo = AssetGenImage('assets/br_logo.png');
+  static const AssetGenImage brLogoNamed =
+      AssetGenImage('assets/br_logo_named.png');
   static const $AssetsDonglesGen dongles = $AssetsDonglesGen();
-  static const AssetGenImage retroLogo = AssetGenImage('assets/retro_logo.png');
 }
 
 class AssetGenImage extends AssetImage {
